@@ -5,17 +5,18 @@ module dflipflop_reset(
     );
 
 always @(posedge clk)
-    begin 
+begin 
+    // If reset is active(low)
     if (~reset)
-        begin 
-            q <= 1'b0;
-            qbar <= 1'b1;
-        end
-    else
-        begin
-            q <= d;
-            qbar <= ~d;
-        end
+    begin
+        q <= 1'b0;
+        qbar <= 1'b1;
     end
+    else    
+    begin
+        q <= d;
+        qbar <= ~d;
+    end
+end
 
 endmodule

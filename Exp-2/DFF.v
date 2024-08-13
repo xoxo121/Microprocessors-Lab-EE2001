@@ -1,7 +1,8 @@
 module dflipflop(
     input clk,   
     input d,
-    output reg q );
+    output reg q 
+    );
 
 always @(posedge clk)
     q <= d;
