@@ -19,6 +19,8 @@ begin
     3'd4: val = 7'b1100110; // Display "4"
     3'd5: val = 7'b1101101; // Display "5"
     3'd6: val = 7'b1111100; // Display "6"
+    3'd7: val = 7'b0111000; // Display "7"
+    
     default: val = 7'b0000000; // Default case
     endcase
 end
