@@ -6,7 +6,7 @@ module clk_divider(
 
 reg [25:0] clockCount;
  // Adjust the value of v to change the frequency of outClk
-parameter v = 25'd50000000;
+parameter v = 25'd80000000;
 
 always @(negedge reset or posedge inClk) 
 begin
