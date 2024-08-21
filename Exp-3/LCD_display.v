@@ -1,8 +1,9 @@
 module lcd(
     input in_Clk,
+    input reset,
     output reg [7:0] data,
-    output reg lcd_rs,
-    output lcd_e
+    output reg lcd_rs, // register select signal
+    output lcd_e // enable signal
     );
 
 wire [7:0] command [0:4];
@@ -23,7 +24,7 @@ always@(posedge lcd_e or negedge reset)
 begin   
     if (!reset) 
     begin
-        count <= 0;        // Reset the count on reset signal
+        count <= 0;        // Reset the count
     end 
     else
     begin
@@ -34,6 +35,7 @@ begin
             3: begin lcd_rs = 0; data = command[2]; end
             4: begin lcd_rs = 0; data = command[3]; end
             5: begin lcd_rs = 0; data = command[4]; end
+
             6: begin lcd_rs = 1; data = 8'h31; end // '1'
             7: begin lcd_rs = 1; data = 8'h32; end // '2'
             8: begin lcd_rs = 1; data = 8'h33; end // '3'
@@ -63,7 +65,7 @@ endmodule
 module clk_divider(
     input inClk,
     input reset,
-    output reg outClk
+    output reg outClk = 0
     );
 
 reg [25:0] clockCount;
@@ -76,11 +78,11 @@ begin
         clockCount <= 26'd0;
         outClk <= 1'b0;
     end 
-    
+
     else 
     begin
         clockCount <= clockCount + 1'd1;
-        if (clockCount == v) 
+        if (clockCount == v - 1) 
         begin
             clockCount <= 26'd0;
             outClk <= ~outClk;
