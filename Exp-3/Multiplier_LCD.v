@@ -1,6 +1,7 @@
 module lcd(
     input in_Clk,
     input [7:0] product, // multiplier output
+    input reset,
     output reg [7:0] data,
     output reg lcd_rs, // register select
     output lcd_e // enable
@@ -17,18 +18,30 @@ assign command [3] = 8'h01; // clear the display
 assign command [4] = 8'h80; // Set cursor to the first line
 assign command [5] = 8'hC0; // Set cursor to the second line
 
-reg [7:0] ascii_table [0:1];
-initial 
-    begin
-        ascii_table[0] = 8'h30; // '0'
-        ascii_table[1] = 8'h31; // '1'
-    end
-
-clk_divider c0 (in_Clk,out_Clk);
+clk_divider c0(in_Clk,reset,out_Clk);
 assign lcd_e = out_Clk;
 
-always@(posedge lcd_e) 
-begin   
+reg [7:0] hundreds;
+reg [7:0] tens;
+reg [7:0] ones;
+
+// convert binary to decimal
+always @(*)
+begin
+    hundreds = (product/100)%10 + 8'h30;
+    tens = (product/10)%10 + 8'h30;
+    ones = (product%10) + 8'h30;
+end
+
+
+always@(posedge lcd_e or negedge reset) 
+begin
+if (!reset)
+begin
+        count <= 0;
+end
+else 
+begin
     count <= count + 1;
     case(count)
         1: begin lcd_rs = 0; data = command[0]; end 
@@ -54,41 +67,45 @@ begin
         18: begin lcd_rs = 0; data = command[5]; end
         
         // Display the product in binary
-        19: begin lcd_rs = 1; data = ascii_table[product[7]]; end // MSB
-        20: begin lcd_rs = 1; data = ascii_table[product[6]]; end
-        21: begin lcd_rs = 1; data = ascii_table[product[5]]; end
-        22: begin lcd_rs = 1; data = ascii_table[product[4]]; end
-        23: begin lcd_rs = 1; data = ascii_table[product[3]]; end
-        24: begin lcd_rs = 1; data = ascii_table[product[2]]; end
-        25: begin lcd_rs = 1; data = ascii_table[product[1]]; end
-        26: begin lcd_rs = 1; data = ascii_table[product[0]]; end // LSB
+        19: begin lcd_rs = 1; data = hundreds; end // MSB
+        20: begin lcd_rs = 1; data = tens; end
+        21: begin lcd_rs = 1; data = ones; end
 
-        default: begin lcd_rs = 0; data = 8'h80;count <= 0; end
+
+        default: begin lcd_rs = 0; data = 8'h80; end
         // return cursor to initial position
     endcase
-    end
+end
+end
 endmodule
 
 
 
 module clk_divider(
     input inClk,
+    input reset,
     output reg outClk = 0
     );
 
-reg [25:0] clockCount = 26'd0;
-parameter v = 26'd500000;
+reg [25:0] clockCount;
+parameter v = 26'd80000;
 
-always @(posedge inClk) 
+always @(negedge reset or posedge inClk) 
 begin
-    if (clockCount == v-1) 
+    if (!reset) 
     begin
         clockCount <= 26'd0;
-        outClk <= ~outClk;
+        outClk <= 1'b0;
     end 
+
     else 
     begin
         clockCount <= clockCount + 1'd1;
+        if (clockCount == v - 1) 
+        begin
+            clockCount <= 26'd0;
+            outClk <= ~outClk;
+        end
     end
 end
 
