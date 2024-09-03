@@ -1,11 +1,4 @@
-;
-; exp 4.asm
-;
-; Created: 03-09-2024 20:33:33
-; Author : monar
-;
 
-; Replace with your application code
 .cseg
 .org 0x0000
 
