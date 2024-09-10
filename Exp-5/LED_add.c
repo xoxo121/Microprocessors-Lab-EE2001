@@ -3,7 +3,7 @@
 
 int main(void)
 {
-    int a = 0x03;
+    	int a = 0x03;
 	int b = 0x07;
 	
 	int sum = a+b;
